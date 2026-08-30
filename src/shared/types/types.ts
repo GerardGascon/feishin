@@ -29,7 +29,7 @@ export enum ItemListKey {
     PLAYLIST_ALBUM = 'playlistAlbum',
     PLAYLIST_SONG = LibraryItem.PLAYLIST_SONG,
     QUEUE_SONG = LibraryItem.QUEUE_SONG,
-    RADIO = 'radio',
+    RADIO = LibraryItem.RADIO_STATION,
     SIDE_QUEUE = 'sideQueue',
     SONG = LibraryItem.SONG,
 }

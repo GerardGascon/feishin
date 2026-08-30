@@ -6,7 +6,7 @@ import { ndApiClient } from '/@/renderer/api/navidrome/navidrome-api';
 import { ssApiClient } from '/@/renderer/api/subsonic/subsonic-api';
 import { SubsonicController } from '/@/renderer/api/subsonic/subsonic-controller';
 import { ndNormalize } from '/@/shared/api/navidrome/navidrome-normalize';
-import { NDRadioListSort, NDSongListSort } from '/@/shared/api/navidrome/navidrome-types';
+import { NDSongListSort } from '/@/shared/api/navidrome/navidrome-types';
 import { ssNormalize } from '/@/shared/api/subsonic/subsonic-normalize';
 import { getFeatures, hasFeature, hasFeatureWithVersion, VersionInfo } from '/@/shared/api/utils';
 import {
@@ -651,14 +651,15 @@ export const NavidromeController: InternalControllerEndpoint = {
     getImageRequest: SubsonicController.getImageRequest,
     getImageUrl: SubsonicController.getImageUrl,
     getInternetRadioStations: async (args) => {
-        const { apiClientProps } = args;
+        const { apiClientProps, query } = args;
 
         const res = await ndApiClient(apiClientProps).getRadioList({
             query: {
-                _end: -1,
-                _order: 'ASC',
-                _sort: NDRadioListSort.NAME,
-                _start: 0,
+                _end: query.startIndex + (query.limit || 0),
+                _order: sortOrderMap.navidrome[query.sortOrder],
+                _sort: query.sortBy ? playlistListSortMap.navidrome[query.sortBy] : undefined,
+                _start: query.startIndex,
+                // q: query.searchTerm,
             },
         });
 
@@ -666,8 +667,17 @@ export const NavidromeController: InternalControllerEndpoint = {
             throw new Error('Failed to get internet radio stations');
         }
 
-        return res.body.data.map((station) => ndNormalize.internetRadioStation(station));
+        return {
+            items: res.body.data.map((item) => ndNormalize.internetRadioStation(item)),
+            startIndex: query?.startIndex || 0,
+            totalRecordCount: Number(res.body.headers.get('x-total-count') || 0),
+        };
     },
+    getInternetRadioStationsCount: async ({ apiClientProps, query }) =>
+        NavidromeController.getInternetRadioStations({
+            apiClientProps,
+            query: { ...query, limit: 1, startIndex: 0 },
+        }).then((result) => result!.totalRecordCount!),
     getLyrics: SubsonicController.getLyrics,
     getMusicFolderList: SubsonicController.getMusicFolderList,
     getPlaylistDetail: async (args) => {

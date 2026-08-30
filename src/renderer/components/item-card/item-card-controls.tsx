@@ -20,6 +20,7 @@ import {
     AlbumArtist,
     Artist,
     Genre,
+    InternetRadioStation,
     LibraryItem,
     Playlist,
     ServerType,
@@ -31,7 +32,7 @@ interface ItemCardControlsProps {
     controls?: ItemControls;
     enableExpansion?: boolean;
     internalState?: ItemListStateActions;
-    item: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined;
+    item: Album | AlbumArtist | Artist | Genre | InternetRadioStation | Playlist | Song | undefined;
     itemType: LibraryItem;
     showFavorite: boolean;
     showRating: boolean;
@@ -62,7 +63,15 @@ const containerProps = {
 const createPlayHandler =
     (
         controls: ItemControls | undefined,
-        item: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined,
+        item:
+            | Album
+            | AlbumArtist
+            | Artist
+            | Genre
+            | InternetRadioStation
+            | Playlist
+            | Song
+            | undefined,
         internalState: ItemListStateActions | undefined,
         itemType: LibraryItem,
         playType: Play,
@@ -110,7 +119,15 @@ const createPlayHandler =
 const createFavoriteHandler =
     (
         controls: ItemControls | undefined,
-        item: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined,
+        item:
+            | Album
+            | AlbumArtist
+            | Artist
+            | Genre
+            | InternetRadioStation
+            | Playlist
+            | Song
+            | undefined,
         internalState: ItemListStateActions | undefined,
         itemType: LibraryItem,
     ) =>
@@ -135,7 +152,15 @@ const createFavoriteHandler =
 const createRatingChangeHandler =
     (
         controls: ItemControls | undefined,
-        item: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined,
+        item:
+            | Album
+            | AlbumArtist
+            | Artist
+            | Genre
+            | InternetRadioStation
+            | Playlist
+            | Song
+            | undefined,
         internalState: ItemListStateActions | undefined,
         itemType: LibraryItem,
     ) =>
@@ -167,7 +192,15 @@ const moreDoubleClickHandler = (e: MouseEvent<HTMLButtonElement>) => {
 const createMoreHandler =
     (
         controls: ItemControls | undefined,
-        item: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined,
+        item:
+            | Album
+            | AlbumArtist
+            | Artist
+            | Genre
+            | InternetRadioStation
+            | Playlist
+            | Song
+            | undefined,
         internalState: ItemListStateActions | undefined,
         itemType: LibraryItem,
     ) =>
@@ -185,7 +218,15 @@ const createMoreHandler =
 const createExpandHandler =
     (
         controls: ItemControls | undefined,
-        item: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined,
+        item:
+            | Album
+            | AlbumArtist
+            | Artist
+            | Genre
+            | InternetRadioStation
+            | Playlist
+            | Song
+            | undefined,
         internalState: ItemListStateActions | undefined,
         itemType: LibraryItem,
     ) =>
@@ -264,45 +305,72 @@ export const ItemCardControls = ({
 
     return (
         <motion.div className={clsx(styles.container)} {...containerProps[type]}>
-            {controls?.onPlay && (
-                <Tooltip.Group>
-                    <PlayTooltip type={Play.NOW}>
-                        <PlayButton
-                            classNames={clsx(styles.playButton, styles.primary)}
-                            onClick={playNowHandler}
-                            onLongPress={playShuffleHandler}
-                        />
-                    </PlayTooltip>
-                    <PlayTooltip type={Play.NEXT}>
-                        <PlayButton
-                            classNames={clsx(styles.playButton, styles.secondary, styles.left)}
-                            icon="mediaPlayNext"
-                            onClick={playNextHandler}
-                            onLongPress={playNextShuffleHandler}
-                        />
-                    </PlayTooltip>
-                    <PlayTooltip type={Play.LAST}>
-                        <PlayButton
-                            classNames={clsx(styles.playButton, styles.secondary, styles.right)}
-                            icon="mediaPlayLast"
-                            onClick={playLastHandler}
-                            onLongPress={playLastShuffleHandler}
-                        />
-                    </PlayTooltip>
-                </Tooltip.Group>
-            )}
-            {controls?.onFavorite && showFavorite && (
-                <FavoriteButton isFavorite={isFavorite} onClick={favoriteHandler} />
-            )}
-            {controls?.onRating &&
-                showRating &&
-                (item?._serverType === ServerType.NAVIDROME ||
-                    item?._serverType === ServerType.SUBSONIC) && (
-                    <RatingButton
-                        onChange={ratingChangeHandler}
-                        rating={(item as { userRating: number }).userRating}
-                    />
-                )}
+            {controls?.onPlay &&
+                (item?._itemType !== LibraryItem.RADIO_STATION ? (
+                    <>
+                        {
+                            <Tooltip.Group>
+                                <PlayTooltip type={Play.NOW}>
+                                    <PlayButton
+                                        classNames={clsx(styles.playButton, styles.primary)}
+                                        onClick={playNowHandler}
+                                        onLongPress={playShuffleHandler}
+                                    />
+                                </PlayTooltip>
+
+                                <PlayTooltip type={Play.NEXT}>
+                                    <PlayButton
+                                        classNames={clsx(
+                                            styles.playButton,
+                                            styles.secondary,
+                                            styles.left,
+                                        )}
+                                        icon="mediaPlayNext"
+                                        onClick={playNextHandler}
+                                        onLongPress={playNextShuffleHandler}
+                                    />
+                                </PlayTooltip>
+
+                                <PlayTooltip type={Play.LAST}>
+                                    <PlayButton
+                                        classNames={clsx(
+                                            styles.playButton,
+                                            styles.secondary,
+                                            styles.right,
+                                        )}
+                                        icon="mediaPlayLast"
+                                        onClick={playLastHandler}
+                                        onLongPress={playLastShuffleHandler}
+                                    />
+                                </PlayTooltip>
+                            </Tooltip.Group>
+                        }
+
+                        {controls?.onFavorite && showFavorite && (
+                            <FavoriteButton isFavorite={isFavorite} onClick={favoriteHandler} />
+                        )}
+
+                        {controls?.onRating &&
+                            showRating &&
+                            (item?._serverType === ServerType.NAVIDROME ||
+                                item?._serverType === ServerType.SUBSONIC) && (
+                                <RatingButton
+                                    onChange={ratingChangeHandler}
+                                    rating={(item as { userRating: number }).userRating}
+                                />
+                            )}
+                    </>
+                ) : (
+                    <Tooltip.Group>
+                        <PlayTooltip type={Play.NOW}>
+                            <PlayButton
+                                classNames={clsx(styles.playButton, styles.primary)}
+                                onClick={playNowHandler}
+                                onLongPress={undefined}
+                            />
+                        </PlayTooltip>
+                    </Tooltip.Group>
+                ))}
             {controls?.onMore && (
                 <SecondaryButton
                     className={styles.options}

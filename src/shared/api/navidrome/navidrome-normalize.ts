@@ -532,11 +532,15 @@ const normalizeUser = (item: z.infer<typeof ndType._response.user>): User => {
 
 const normalizeInternetRadioStation = (
     item: z.infer<typeof ndType._response.radioStation>,
+    server?: null | ServerListItem,
 ): InternetRadioStation => {
     const homepageUrl = item.homePageUrl?.trim() ? item.homePageUrl : null;
     const imageId = navidromeImageIdWithCacheBust(item.id, item.uploadedImage, item.updatedAt);
 
     return {
+        _itemType: LibraryItem.RADIO_STATION,
+        _serverId: server?.id || 'unknown',
+        _serverType: ServerType.NAVIDROME,
         homepageUrl,
         id: item.id,
         imageId,

@@ -44,12 +44,20 @@ export enum SortOrder {
     DESC = 'DESC',
 }
 
-export type AnyLibraryItem = Album | AlbumArtist | Artist | Playlist | QueueSong | Song;
+export type AnyLibraryItem =
+    | Album
+    | AlbumArtist
+    | Artist
+    | InternetRadioStation
+    | Playlist
+    | QueueSong
+    | Song;
 
 export type AnyLibraryItems =
     | Album[]
     | AlbumArtist[]
     | Artist[]
+    | InternetRadioStation[]
     | Playlist[]
     | QueueSong[]
     | Song[];
@@ -1045,11 +1053,25 @@ export type FavoriteQuery = {
 // Favorite
 export type FavoriteResponse = null | undefined;
 
-export type GetInternetRadioStationsArgs = BaseEndpointArgs;
+export type GetInternetRadioStationsArgs = BaseEndpointArgs & { query: InternetRadioListQuery };
 
-export type GetInternetRadioStationsResponse = InternetRadioStation[];
+export type GetInternetRadioStationsCountArgs = BaseEndpointArgs & {
+    query: ListCountQuery<InternetRadioListQuery>;
+};
+
+export type GetInternetRadioStationsResponse = BasePaginatedResponse<InternetRadioStation[]>;
+
+export interface InternetRadioListQuery extends BaseQuery<RadioListSort> {
+    _custom?: Record<string, any>;
+    limit?: number;
+    searchTerm?: string;
+    startIndex: number;
+}
 
 export type InternetRadioStation = {
+    _itemType: LibraryItem.RADIO_STATION;
+    _serverId: string;
+    _serverType: ServerType;
     homepageUrl: null | string;
     id: string;
     imageId?: null | string;
@@ -1593,6 +1615,7 @@ export type ControllerEndpoint = {
     getInternetRadioStations: (
         args: GetInternetRadioStationsArgs,
     ) => Promise<GetInternetRadioStationsResponse>;
+    getInternetRadioStationsCount: (args: GetInternetRadioStationsCountArgs) => Promise<number>;
     getLyrics?: (args: LyricsArgs) => Promise<LyricsResponse>;
     getMusicFolderList: (args: MusicFolderListArgs) => Promise<MusicFolderListResponse>;
     getPlaylistDetail: (args: PlaylistDetailArgs) => Promise<PlaylistDetailResponse>;
@@ -1749,6 +1772,9 @@ export type InternalControllerEndpoint = {
     getInternetRadioStations: (
         args: ReplaceApiClientProps<GetInternetRadioStationsArgs>,
     ) => Promise<GetInternetRadioStationsResponse>;
+    getInternetRadioStationsCount: (
+        args: ReplaceApiClientProps<GetInternetRadioStationsCountArgs>,
+    ) => Promise<number>;
     getLyrics?: (args: ReplaceApiClientProps<LyricsArgs>) => Promise<LyricsResponse>;
     getMusicFolderList: (
         args: ReplaceApiClientProps<MusicFolderListArgs>,

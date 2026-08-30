@@ -1,5 +1,5 @@
-import { t } from 'i18next';
-import { MouseEvent, type ReactNode, useEffect, useState } from 'react';
+import { closeModal, ContextModalProps } from '@mantine/modals';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ItemImage } from '/@/renderer/components/item-image/item-image';
@@ -15,24 +15,18 @@ import { DragDropZone } from '/@/shared/components/drag-drop-zone/drag-drop-zone
 import { FileButton } from '/@/shared/components/file-button/file-button';
 import { Flex } from '/@/shared/components/flex/flex';
 import { Group } from '/@/shared/components/group/group';
-import { closeAllModals, openModal } from '/@/shared/components/modal/modal';
+import { closeAllModals } from '/@/shared/components/modal/modal';
 import { ModalButton } from '/@/shared/components/modal/model-shared';
 import { Stack } from '/@/shared/components/stack/stack';
 import { TextInput } from '/@/shared/components/text-input/text-input';
 import { toast } from '/@/shared/components/toast/toast';
 import { useForm } from '/@/shared/hooks/use-form';
 import {
-    InternetRadioStation,
     LibraryItem,
-    ServerListItem,
     UpdateInternetRadioStationBody,
+    UpdateInternetRadioStationQuery,
 } from '/@/shared/types/domain-types';
 import { ServerFeature } from '/@/shared/types/features-types';
-
-interface EditRadioStationFormProps {
-    onCancel: () => void;
-    station: InternetRadioStation;
-}
 
 type RadioStationImageProps = {
     imageId: null | string;
@@ -40,19 +34,21 @@ type RadioStationImageProps = {
     uploadedImage?: string;
 };
 
-export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationFormProps) => {
+export const UpdateInternetRadioContextModal = ({
+    id,
+    innerProps,
+}: ContextModalProps<{
+    body: Partial<UpdateInternetRadioStationBody>;
+    internetRadioImage?: RadioStationImageProps;
+    query: UpdateInternetRadioStationQuery;
+}>) => {
     const { t } = useTranslation();
     const updateMutation = useUpdateRadioStation({});
     const uploadImageMutation = useUploadInternetRadioStationImage({});
     const deleteImageMutation = useDeleteInternetRadioStationImage({});
     const server = useCurrentServer();
     const isCoverImageDisplayed = hasFeature(server, ServerFeature.INTERNET_RADIO_IMAGE_UPLOAD);
-
-    const stationImage: RadioStationImageProps = {
-        imageId: station.imageId ?? null,
-        imageUrl: station.imageUrl ?? null,
-        uploadedImage: station.uploadedImage ?? undefined,
-    };
+    const { body, internetRadioImage, query } = innerProps;
 
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [pendingPreviewUrl, setPendingPreviewUrl] = useState<null | string>(null);
@@ -71,9 +67,9 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
 
     const form = useForm<UpdateInternetRadioStationBody>({
         initialValues: {
-            homepageUrl: station.homepageUrl || '',
-            name: station.name,
-            streamUrl: station.streamUrl,
+            homepageUrl: body?.homepageUrl || '',
+            name: body?.name || '',
+            streamUrl: body?.streamUrl || '',
         },
     });
 
@@ -85,7 +81,7 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
             await updateMutation.mutateAsync({
                 apiClientProps: { serverId: server.id },
                 body: values,
-                query: { id: station.id },
+                query: { id: query.id },
             });
 
             if (pendingFile) {
@@ -93,12 +89,12 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
                 await uploadImageMutation.mutateAsync({
                     apiClientProps: { serverId: server.id },
                     body: { image: new Uint8Array(buffer) },
-                    query: { id: station.id },
+                    query: { id: query.id },
                 });
-            } else if (removeCustomCover && stationImage.uploadedImage) {
+            } else if (removeCustomCover && internetRadioImage?.uploadedImage) {
                 await deleteImageMutation.mutateAsync({
                     apiClientProps: { serverId: server.id },
-                    query: { id: station.id },
+                    query: { id: query.id },
                 });
             }
 
@@ -119,7 +115,9 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
     });
 
     const isSubmitDisabled = !form.values.name || !form.values.streamUrl || isSaving;
-    const hadUploadedCover = !!stationImage.uploadedImage;
+    const hadUploadedCover = !!internetRadioImage?.uploadedImage;
+
+    console.log(hadUploadedCover);
 
     const fieldNodes: ReactNode[] = [
         <TextInput
@@ -147,7 +145,7 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
             {...form.getInputProps('homepageUrl')}
         />,
         <Group justify="flex-end" key="actions">
-            <ModalButton disabled={isSaving} onClick={onCancel}>
+            <ModalButton disabled={isSaving} onClick={() => closeModal(id)}>
                 {t('common.cancel')}
             </ModalButton>
             <ModalButton
@@ -177,7 +175,7 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
                         pendingFile={pendingFile}
                         pendingPreviewUrl={pendingPreviewUrl}
                         removeCustomCover={removeCustomCover}
-                        stationImage={stationImage}
+                        stationImage={internetRadioImage}
                     />
                     <Stack gap="md" style={{ flex: '1 1 220px', minWidth: 0 }}>
                         {fieldNodes}
@@ -209,13 +207,13 @@ function RadioStationCoverField({
     pendingFile: File | null;
     pendingPreviewUrl: null | string;
     removeCustomCover: boolean;
-    stationImage: RadioStationImageProps;
+    stationImage?: RadioStationImageProps;
 }) {
     const server = useCurrentServer();
 
     const showServerCover = !pendingPreviewUrl && !removeCustomCover;
-    const previewId = showServerCover ? stationImage.imageId || undefined : undefined;
-    const previewSrc = pendingPreviewUrl || (showServerCover ? stationImage.imageUrl || '' : '');
+    const previewId = showServerCover ? stationImage?.imageId || undefined : undefined;
+    const previewSrc = pendingPreviewUrl || (showServerCover ? stationImage?.imageUrl || '' : '');
 
     const secondaryAction = () => {
         if (pendingFile) {
@@ -311,26 +309,3 @@ function RadioStationCoverField({
         </Box>
     );
 }
-
-export const openEditRadioStationModal = (
-    station: InternetRadioStation,
-    server: null | ServerListItem,
-    e?: MouseEvent<HTMLButtonElement>,
-) => {
-    e?.stopPropagation();
-
-    if (!server) {
-        toast.error({
-            message: t('common.error.noServer') as string,
-        });
-        return;
-    }
-
-    const hasImageUpload = hasFeature(server, ServerFeature.INTERNET_RADIO_IMAGE_UPLOAD);
-
-    openModal({
-        children: <EditRadioStationForm onCancel={closeAllModals} station={station} />,
-        size: hasImageUpload ? 'lg' : 'md',
-        title: t('common.edit') as string,
-    });
-};

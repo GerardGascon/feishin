@@ -9,6 +9,7 @@ import { ArtistContextMenu } from '/@/renderer/features/context-menu/menus/artis
 import { FolderContextMenu } from '/@/renderer/features/context-menu/menus/folder-context-menu';
 import { GenreContextMenu } from '/@/renderer/features/context-menu/menus/genre-context-menu';
 import { PlaylistContextMenu } from '/@/renderer/features/context-menu/menus/playlist-context-menu';
+import { InternetRadioContextMenu } from '/@/renderer/features/context-menu/menus/radio-context-menu';
 import { PlaylistSongContextMenu } from '/@/renderer/features/context-menu/menus/playlist-song-context-menu';
 import { QueueContextMenu } from '/@/renderer/features/context-menu/menus/queue-context-menu';
 import { SongContextMenu } from '/@/renderer/features/context-menu/menus/song-context-menu';
@@ -19,6 +20,7 @@ import {
     Artist,
     Folder,
     Genre,
+    InternetRadioStation,
     LibraryItem,
     Playlist,
     QueueSong,
@@ -89,6 +91,7 @@ export const ContextMenuController = createCallable<ContextMenuControllerProps, 
                 {cmd.type === LibraryItem.PLAYLIST && <PlaylistContextMenu {...cmd} />}
                 {cmd.type === LibraryItem.PLAYLIST_SONG && <PlaylistSongContextMenu {...cmd} />}
                 {cmd.type === LibraryItem.SONG && <SongContextMenu {...cmd} />}
+                {cmd.type === LibraryItem.RADIO_STATION && <InternetRadioContextMenu {...cmd} />}
             </ContextMenu>
         );
     },
@@ -100,6 +103,7 @@ export type ContextMenuCommand =
     | ArtistContextMenuProps
     | FolderContextMenuProps
     | GenreContextMenuProps
+    | InternetRadioContextMenuProps
     | PlaylistContextMenuProps
     | PlaylistSongContextMenuProps
     | QueueSongContextMenuProps
@@ -128,6 +132,11 @@ type FolderContextMenuProps = {
 type GenreContextMenuProps = {
     items: Genre[];
     type: LibraryItem.GENRE;
+};
+
+type InternetRadioContextMenuProps = {
+    items: InternetRadioStation[];
+    type: LibraryItem.RADIO_STATION;
 };
 
 type PlaylistContextMenuProps = {

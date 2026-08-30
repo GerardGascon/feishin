@@ -6,11 +6,7 @@ import { generatePath, Link } from 'react-router';
 import { SongPath } from '/@/renderer/features/item-details/components/song-path';
 import { AppRoute } from '/@/renderer/router/routes';
 import { formatDurationString, formatSizeString } from '/@/renderer/utils';
-import {
-    formatDateRelative,
-    formatPartialIsoDateUTC,
-    formatRating,
-} from '/@/renderer/utils/format';
+import { formatDateRelative, formatPartialIsoDateUTC, formatRating, } from '/@/renderer/utils/format';
 import { replaceURLWithHTMLLinks } from '/@/renderer/utils/linkify';
 import { normalizeReleaseTypes } from '/@/renderer/utils/normalize-release-types';
 import { sanitize } from '/@/renderer/utils/sanitize';
@@ -28,6 +24,7 @@ import {
     AnyLibraryItem,
     Artist,
     ExplicitStatus,
+    InternetRadioStation,
     LibraryItem,
     Playlist,
     RelatedArtist,
@@ -35,8 +32,8 @@ import {
 } from '/@/shared/types/domain-types';
 
 export type ItemDetailsModalProps = {
-    item?: Album | AlbumArtist | Artist | Playlist | Song;
-    items?: (Album | AlbumArtist | Artist | Playlist | Song)[];
+    item?: Album | AlbumArtist | Artist | InternetRadioStation | Playlist | Song;
+    items?: (Album | AlbumArtist | Artist | InternetRadioStation | Playlist | Song)[];
 };
 
 type ItemDetailRow<T> = {
@@ -141,6 +138,15 @@ const FormatGenre = (item: Album | AlbumArtist | Playlist | Song) => {
 const BoolField = (key: boolean) =>
     key ? <Icon color="success" icon="check" /> : <Icon color="error" icon="x" />;
 
+const UrlField = (url?: string) =>
+    url ? (
+        <a href={url} rel="noopener noreferrer" target="_blank">
+            {url}
+        </a>
+    ) : (
+        <Icon color="error" icon="x" />
+    );
+
 const AlbumPropertyMapping: ItemDetailRow<Album>[] = [
     { key: 'name', label: 'common.title' },
     { count: 1, label: 'entity.albumArtist', render: (item) => formatArtists(item.albumArtists) },
@@ -244,6 +250,21 @@ const AlbumArtistPropertyMapping: ItemDetailRow<AlbumArtist>[] = [
                     <Text dangerouslySetInnerHTML={{ __html: sanitize(artist.biography) }} />
                 </Spoiler>
             ) : null,
+    },
+    { key: 'id', label: 'filter.id' },
+];
+
+const InternetRadioPropertyMapping: ItemDetailRow<InternetRadioStation>[] = [
+    { key: 'name', label: 'common.title' },
+    {
+        key: 'streamUrl',
+        label: 'common.streamUrl',
+        render: (radio) => UrlField(radio.streamUrl || undefined),
+    },
+    {
+        key: 'homepageUrl',
+        label: 'common.homepageUrl',
+        render: (radio) => UrlField(radio.homepageUrl || undefined),
     },
     { key: 'id', label: 'filter.id' },
 ];
@@ -470,6 +491,9 @@ export const ItemDetailsModal = ({ item, items }: ItemDetailsModalProps) => {
             break;
         case LibraryItem.PLAYLIST:
             body = PlaylistPropertyMapping.map((rule) => handleRow(t, selectedItem, rule));
+            break;
+        case LibraryItem.RADIO_STATION:
+            body = InternetRadioPropertyMapping.map((rule) => handleRow(t, selectedItem, rule));
             break;
         case LibraryItem.SONG:
             body = SongPropertyMapping.map((rule) => handleRow(t, selectedItem, rule));

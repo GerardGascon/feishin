@@ -85,9 +85,9 @@ const TooltipLabel = ({ label }: { label: React.ReactNode | string; type: Play }
             <Text fw={500} ta="center">
                 {label}
             </Text>
-            <Text fw={500} isMuted size="xs" ta="center">
-                {i18n.t('player.holdToShuffle')}
-            </Text>
+            {/*<Text fw={500} isMuted size="xs" ta="center">*/}
+            {/*    {i18n.t('player.holdToShuffle')}*/}
+            {/*</Text>*/}
         </Stack>
     );
 };

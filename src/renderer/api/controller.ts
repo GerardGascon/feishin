@@ -632,6 +632,17 @@ export const controller: GeneralController = {
             server.type,
         )?.(addContext({ ...args, apiClientProps: { ...args.apiClientProps, server } }));
     },
+    getInternetRadioStationsCount(args) {
+        const server = getServerById(args.apiClientProps.serverId);
+
+        if (!server) {
+            throw new Error(`${i18n.t('error.apiRouteError')}: getInternetRadioStationsCount`);
+        }
+        return apiController(
+            'getInternetRadioStationsCount',
+            server.type,
+        )?.(addContext({ ...args, apiClientProps: { ...args.apiClientProps, server } }));
+    },
     getLyrics(args) {
         const server = getServerById(args.apiClientProps.serverId);
 

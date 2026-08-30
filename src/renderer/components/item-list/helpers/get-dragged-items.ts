@@ -8,6 +8,7 @@ import {
     Artist,
     Folder,
     Genre,
+    InternetRadioStation,
     Playlist,
     Song,
 } from '/@/shared/types/domain-types';
@@ -42,7 +43,7 @@ const hasRequiredDragProperties = (
  * @returns Array of items that should be dragged (with original values, asserting id, itemType, and _serverId)
  */
 export const getDraggedItems = (
-    data: Album | AlbumArtist | Artist | Folder | Genre | Playlist | Song | undefined,
+    data: Album | AlbumArtist | Artist | Folder | Genre | InternetRadioStation | Playlist | Song | undefined,
     internalState?: ItemListStateActions,
     updateSelection: boolean = true,
 ): ItemListStateItemWithRequiredProperties[] => {

@@ -19,6 +19,7 @@ import {
     pickTableColumns,
     PLAYLIST_SONG_TABLE_COLUMNS,
     PLAYLIST_TABLE_COLUMNS,
+    RADIO_TABLE_COLUMNS,
     SONG_TABLE_COLUMNS,
 } from '/@/renderer/components/item-list/item-table-list/default-columns';
 import { audiomotionanalyzerPresets } from '/@/renderer/features/visualizer/components/audiomotionanalyzer/presets';
@@ -1933,6 +1934,41 @@ const initialState: SettingsState = {
                     pinned: column.pinned,
                     width: column.width,
                 })),
+                enableAlternateRowColors: false,
+                enableHeader: true,
+                enableHorizontalBorders: false,
+                enableRowHoverHighlight: true,
+                enableVerticalBorders: false,
+                size: 'default',
+            },
+        },
+        [LibraryItem.RADIO_STATION]: {
+            display: ListDisplayType.TABLE,
+            grid: {
+                itemGap: 'sm',
+                itemsPerRow: 6,
+                itemsPerRowEnabled: false,
+                rows: pickGridRows({
+                    alignLeftColumns: [TableColumn.TITLE, TableColumn.SONG_COUNT],
+                    columns: RADIO_TABLE_COLUMNS,
+                    enabledColumns: [TableColumn.TITLE],
+                    pickColumns: [TableColumn.TITLE, TableColumn.SONG_COUNT],
+                }),
+                size: 'default',
+            },
+            itemsPerPage: 100,
+            pagination: ListPaginationType.INFINITE,
+            table: {
+                autoFitColumns: true,
+                columns: pickTableColumns({
+                    autoSizeColumns: [TableColumn.TITLE],
+                    columns: RADIO_TABLE_COLUMNS,
+                    enabledColumns: [
+                        TableColumn.ROW_INDEX,
+                        TableColumn.TITLE,
+                        TableColumn.ACTIONS,
+                    ],
+                }),
                 enableAlternateRowColors: false,
                 enableHeader: true,
                 enableHorizontalBorders: false,

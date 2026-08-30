@@ -126,10 +126,22 @@ const SaveAndReplaceContextModal = (props: any) => (
     </Suspense>
 );
 
+const LazyUpdateInternetRadioContextModal = lazy(() =>
+    import('/@/renderer/features/radio/components/update-radio-form').then((module) => ({
+        default: module.UpdateInternetRadioContextModal,
+    })),
+);
+
 const LazyUpdatePlaylistContextModal = lazy(() =>
     import('/@/renderer/features/playlists/components/update-playlist-form').then((module) => ({
         default: module.UpdatePlaylistContextModal,
     })),
+);
+
+const UpdateInternetRadioStationContextModal = (props: any) => (
+    <Suspense fallback={<Spinner container />}>
+        <LazyUpdateInternetRadioContextModal {...props} />
+    </Suspense>
 );
 
 const UpdatePlaylistContextModal = (props: any) => (
@@ -185,6 +197,7 @@ const appRouterModals = {
     settings: SettingsContextModal,
     shareItem: ShareItemContextModal,
     shuffleAll: ShuffleAllContextModal,
+    updateInternetRadioStation: UpdateInternetRadioStationContextModal,
     updatePlaylist: UpdatePlaylistContextModal,
     visualizerSettings: VisualizerSettingsContextModal,
 };

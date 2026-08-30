@@ -86,12 +86,17 @@ enum PlaylistFilterKeys {
     CUSTOM = '_custom',
 }
 
+enum RadioFilterKeys {
+    CUSTOM = '_custom',
+}
+
 export const FILTER_KEYS = {
     ALBUM: AlbumFilterKeys,
     ARTIST: ArtistFilterKeys,
     FOLDER: FolderFilterKeys,
     PAGINATION: PaginationFilterKeys,
     PLAYLIST: PlaylistFilterKeys,
+    RADIO: RadioFilterKeys,
     SHARED: SharedFilterKeys,
     SONG: SongFilterKeys,
 };

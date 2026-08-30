@@ -31,6 +31,7 @@ const itemTypeMapping = {
     [LibraryItem.PLAYLIST]: LibraryItem.PLAYLIST,
     [LibraryItem.PLAYLIST_SONG]: LibraryItem.SONG,
     [LibraryItem.QUEUE_SONG]: LibraryItem.SONG,
+    [LibraryItem.RADIO_STATION]: LibraryItem.RADIO_STATION,
 };
 
 export const useDefaultItemListControls = (args?: UseDefaultItemListControlsArgs) => {
