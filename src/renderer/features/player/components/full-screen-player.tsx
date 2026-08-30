@@ -293,9 +293,19 @@ const PlayerContainer = memo(
         windowBarStyle,
     }: PlayerContainerProps) => {
         const currentSong = usePlayerSong();
+        const isRadioActive = useIsRadioActive();
+        const { currentStationArt: currentRadioStationArt, isPlaying: isRadioPlaying } =
+            useRadioPlayer();
+
+        const isPlayingRadio = isRadioActive && isRadioPlaying;
+        const imageId = isPlayingRadio ? currentRadioStationArt?.imageId : currentSong?.imageId;
+        const currentImageUrl = isPlayingRadio
+            ? currentRadioStationArt?.imageUrl
+            : currentSong?.imageUrl;
+
         const imageUrl = useItemImageUrl({
-            id: currentSong?.imageId || undefined,
-            imageUrl: currentSong?.imageUrl,
+            id: imageId || undefined,
+            imageUrl: currentImageUrl,
             itemType: LibraryItem.SONG,
             type: 'itemCard',
         });
@@ -334,11 +344,7 @@ export const FullScreenPlayer = () => {
     const { setStore } = useFullScreenPlayerStoreActions();
     const hasActiveModule = Boolean(activeTab);
     const { windowBarStyle } = useWindowSettings();
-    const isRadioActive = useIsRadioActive();
-    const { isPlaying: isRadioPlaying } = useRadioPlayer();
-
-    const isPlayingRadio = isRadioActive && isRadioPlaying;
-    const effectiveDynamicBackground = dynamicBackground && !isPlayingRadio;
+    const effectiveDynamicBackground = dynamicBackground;
 
     const location = useLocation();
     const isOpenedRef = useRef<boolean | null>(null);

@@ -59,10 +59,19 @@ const ImageWithPlaceholder = ({
     ...props
 }: HTMLMotionProps<'img'> & {
     explicit?: boolean;
+    itemType: LibraryItem;
     placeholder?: string;
     placeholderIcon?: 'itemAlbum' | 'radio';
+    serverId?: string;
 }) => {
     const nativeAspectRatio = useNativeAspectRatio();
+
+    props.src = useItemImageUrl({
+        id: props.id,
+        imageUrl: props.src,
+        itemType: props.itemType,
+        serverId: props.serverId,
+    });
 
     if (!props.src) {
         return (
@@ -99,7 +108,8 @@ export const FullScreenPlayerImage = () => {
     const [imageContainerWidth, setImageContainerWidth] = useState<null | number>(null);
 
     const isRadioActive = useIsRadioActive();
-    const { isPlaying: isRadioPlaying } = useRadioPlayer();
+    const { currentStationArt: currentRadioStationArt, isPlaying: isRadioPlaying } =
+        useRadioPlayer();
 
     const currentSong = usePlayerSong();
     const { nextSong } = usePlayerData();
@@ -274,9 +284,12 @@ export const FullScreenPlayerImage = () => {
                             draggable={false}
                             exit="closed"
                             explicit={blurExplicitImages && imageState.topExplicit}
+                            id={currentSong?.imageId ?? undefined}
                             initial="closed"
+                            itemType={LibraryItem.SONG}
                             key={`top-${currentSong?._uniqueId || 'none'}`}
                             placeholder="var(--theme-colors-foreground-muted)"
+                            serverId={currentSong?._serverId}
                             src={imageState.topImage || ''}
                             variants={imageVariants}
                         />
@@ -290,9 +303,12 @@ export const FullScreenPlayerImage = () => {
                             draggable={false}
                             exit="closed"
                             explicit={blurExplicitImages && imageState.bottomExplicit}
+                            id={currentSong?.imageId ?? undefined}
                             initial="closed"
+                            itemType={LibraryItem.SONG}
                             key={`bottom-${currentSong?._uniqueId || 'none'}`}
                             placeholder="var(--theme-colors-foreground-muted)"
+                            serverId={currentSong?._serverId}
                             src={imageState.bottomImage || ''}
                             variants={imageVariants}
                         />
@@ -305,11 +321,14 @@ export const FullScreenPlayerImage = () => {
                             custom={{ isOpen: true }}
                             draggable={false}
                             exit="closed"
+                            id={currentRadioStationArt?.imageId ?? undefined}
                             initial="closed"
+                            itemType={LibraryItem.RADIO_STATION}
                             key="radio"
                             placeholder="var(--theme-colors-foreground-muted)"
                             placeholderIcon="radio"
-                            src=""
+                            serverId={currentRadioStationArt?.serverId}
+                            src={currentRadioStationArt?.imageUrl || ''}
                             variants={imageVariants}
                         />
                     )}
