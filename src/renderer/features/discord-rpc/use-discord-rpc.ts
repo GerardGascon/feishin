@@ -123,6 +123,12 @@ export const useDiscordRpc = () => {
                 const title = radioMetadata?.title || stationName || 'Radio';
                 const artist = radioMetadata?.artist || stationName || '';
 
+                const statusDisplayMap = {
+                    [DiscordDisplayType.ARTIST_NAME]: DiscordStatusDisplayType.STATE,
+                    [DiscordDisplayType.FEISHIN]: DiscordStatusDisplayType.NAME,
+                    [DiscordDisplayType.SONG_NAME]: DiscordStatusDisplayType.DETAILS,
+                };
+
                 const activity: SetActivity = {
                     details: truncate(title),
                     instance: false,
@@ -141,7 +147,7 @@ export const useDiscordRpc = () => {
                                 : undefined
                             : sentenceCase(current[2]),
                     state: truncate(artist),
-                    statusDisplayType: DiscordStatusDisplayType.STATE,
+                    statusDisplayType: statusDisplayMap[discordSettings.displayType],
                     type: discordSettings.showAsListening ? 2 : 0,
                 };
 
