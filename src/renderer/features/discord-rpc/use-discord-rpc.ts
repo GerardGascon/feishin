@@ -377,6 +377,7 @@ export const useDiscordRpc = () => {
             radioMetadata?.artist,
             radioMetadata?.title,
             stationName,
+            imageUrl,
         ],
     );
 
