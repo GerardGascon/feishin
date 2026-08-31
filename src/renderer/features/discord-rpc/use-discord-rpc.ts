@@ -51,31 +51,16 @@ export const useDiscordRpc = () => {
     const [lastUniqueId, setlastUniqueId] = useState('');
 
     const isRadioActive = useIsRadioActive();
-    const {
-        currentStationArt,
-        isPlaying: isRadioPlaying,
-        metadata: radioMetadata,
-        stationName,
-    } = useRadioPlayer();
-
-    const radioImageUrl = useItemImageUrl({
-        id: currentStationArt?.imageId || undefined,
-        imageUrl: currentStationArt?.imageUrl,
-        itemType: LibraryItem.RADIO_STATION,
-        type: 'table',
-        useRemoteUrl: true,
-    });
+    const { isPlaying: isRadioPlaying, metadata: radioMetadata, stationName } = useRadioPlayer();
 
     const currentSong = usePlayerSong();
-    const songImageUrl = useItemImageUrl({
+    const imageUrl = useItemImageUrl({
         id: currentSong?.imageId || undefined,
         imageUrl: currentSong?.imageUrl,
         itemType: LibraryItem.SONG,
         type: 'table',
         useRemoteUrl: true,
     });
-
-    const imageUrl = isRadioPlaying ? radioImageUrl : songImageUrl;
 
     const imageUrlRef = useRef<null | string | undefined>(imageUrl);
     const previousEnabledRef = useRef<boolean>(discordSettings.enabled);
@@ -147,7 +132,7 @@ export const useDiscordRpc = () => {
                 const activity: SetActivity = {
                     details: truncate(title),
                     instance: false,
-                    largeImageKey: imageUrl || 'icon',
+                    largeImageKey: 'icon',
                     largeImageText: truncate(stationName || 'Radio'),
                     smallImageKey:
                         current[2] === PlayerStatus.PLAYING
