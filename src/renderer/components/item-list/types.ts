@@ -5,6 +5,7 @@ import {
     Artist,
     Folder,
     Genre,
+    InternetRadioStation,
     LibraryItem,
     Playlist,
     Song,
@@ -85,6 +86,7 @@ export type ItemListItem =
     | Artist
     | Folder
     | Genre
+    | InternetRadioStation
     | Playlist
     | Song
     | undefined;

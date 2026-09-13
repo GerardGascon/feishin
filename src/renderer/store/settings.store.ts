@@ -19,6 +19,7 @@ import {
     pickTableColumns,
     PLAYLIST_SONG_TABLE_COLUMNS,
     PLAYLIST_TABLE_COLUMNS,
+    RADIO_TABLE_COLUMNS,
     SONG_TABLE_COLUMNS,
 } from '/@/renderer/components/item-list/item-table-list/default-columns';
 import { audiomotionanalyzerPresets } from '/@/renderer/features/visualizer/components/audiomotionanalyzer/presets';
@@ -1953,6 +1954,41 @@ const initialState: SettingsState = {
                     pinned: column.pinned,
                     width: column.width,
                 })),
+                enableAlternateRowColors: false,
+                enableHeader: true,
+                enableHorizontalBorders: false,
+                enableRowHoverHighlight: true,
+                enableVerticalBorders: false,
+                size: 'default',
+            },
+        },
+        [LibraryItem.RADIO]: {
+            display: ListDisplayType.TABLE,
+            grid: {
+                itemGap: 'sm',
+                itemsPerRow: 6,
+                itemsPerRowEnabled: false,
+                rows: pickGridRows({
+                    alignLeftColumns: [TableColumn.TITLE],
+                    columns: RADIO_TABLE_COLUMNS,
+                    enabledColumns: [TableColumn.TITLE],
+                    pickColumns: [
+                        TableColumn.TITLE,
+                        TableColumn.HOMEPAGE_URL,
+                        TableColumn.STREAM_URL,
+                    ],
+                }),
+                size: 'default',
+            },
+            itemsPerPage: 100,
+            pagination: ListPaginationType.INFINITE,
+            table: {
+                autoFitColumns: true,
+                columns: pickTableColumns({
+                    autoSizeColumns: [TableColumn.TITLE],
+                    columns: RADIO_TABLE_COLUMNS,
+                    enabledColumns: [TableColumn.ROW_INDEX, TableColumn.TITLE],
+                }),
                 enableAlternateRowColors: false,
                 enableHeader: true,
                 enableHorizontalBorders: false,

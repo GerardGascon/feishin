@@ -37,6 +37,7 @@ import {
     InternalControllerEndpoint,
     LibraryItem,
     PlaylistListSort,
+    RadioListSort,
     ReplaceApiClientProps,
     ServerType,
     Song,
@@ -1177,18 +1178,63 @@ export const SubsonicController: InternalControllerEndpoint = {
     },
     getImageRequest: getSubsonicImageRequest,
     getImageUrl: (args) => getSubsonicImageRequest(args)?.url || null,
-    getInternetRadioStations: async (args) => {
-        const { apiClientProps } = args;
+    getInternetRadioStationList: async ({ apiClientProps, query }) => {
+        const sortOrder = (query.sortOrder || SortOrder.ASC).toLowerCase() as 'asc' | 'desc';
 
-        const res = await ssApiClient(apiClientProps).getInternetRadioStations();
+        const res = await ssApiClient(apiClientProps).getInternetRadioStations({});
 
         if (res.status !== 200) {
             throw new Error('Failed to get internet radio stations');
         }
 
-        const stations = res.body.internetRadioStations?.internetRadioStation || [];
+        let results = res.body.internetRadioStations?.internetRadioStation || [];
 
-        return stations.map((station) => ssNormalize.internetRadioStation(station));
+        if (query.searchTerm) {
+            const searchResults = filter(results, (radio) => {
+                return radio.name.toLowerCase().includes(query.searchTerm!.toLowerCase());
+            });
+
+            results = searchResults;
+        }
+
+        switch (query.sortBy) {
+            case RadioListSort.ID:
+                results = orderBy(results, ['id'], [sortOrder]);
+                break;
+            case RadioListSort.NAME:
+                results = orderBy(results, [(v) => v.name?.toLowerCase()], [sortOrder]);
+                break;
+            default:
+                break;
+        }
+
+        const radios = results.map((radio) =>
+            ssNormalize.internetRadioStation(radio, apiClientProps.server),
+        );
+
+        return sortAndPaginate(radios, {
+            limit: query.limit,
+            startIndex: query.startIndex,
+        });
+    },
+    getInternetRadioStationListCount: async ({ apiClientProps, query }) => {
+        const res = await ssApiClient(apiClientProps).getInternetRadioStations({});
+
+        if (res.status !== 200) {
+            throw new Error('Failed to get internet radio stations');
+        }
+
+        let results = res.body.internetRadioStations?.internetRadioStation || [];
+
+        if (query.searchTerm) {
+            const searchResults = filter(results, (playlist) => {
+                return playlist.name.toLowerCase().includes(query.searchTerm!.toLowerCase());
+            });
+
+            results = searchResults;
+        }
+
+        return results.length;
     },
     getMusicFolderList: async (args) => {
         const { apiClientProps } = args;

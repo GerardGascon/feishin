@@ -496,8 +496,12 @@ const normalizeFolder = (
 
 const normalizeInternetRadioStation = (
     item: z.infer<typeof ssType._response.internetRadioStation>,
+    server?: null | ServerListItemWithCredential,
 ): InternetRadioStation => {
     return {
+        _itemType: LibraryItem.RADIO_STATION,
+        _serverId: server?.id || 'unknown',
+        _serverType: ServerType.SUBSONIC,
         homepageUrl: item.homepageUrl || null,
         id: item.id,
         imageId: item.coverArt?.toString() || null,

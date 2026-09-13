@@ -701,6 +701,63 @@ export const PLAYLIST_TABLE_COLUMNS: DefaultTableColumn[] = [
     },
 ];
 
+export const RADIO_TABLE_COLUMNS: DefaultTableColumn[] = [
+    {
+        align: 'center',
+        autoSize: false,
+        isEnabled: true,
+        label: i18n.t('table.config.label.rowIndex'),
+        pinned: null,
+        value: TableColumn.ROW_INDEX,
+        width: 60,
+    },
+    {
+        align: 'center',
+        autoSize: false,
+        isEnabled: true,
+        label: i18n.t('table.config.label.image'),
+        pinned: null,
+        value: TableColumn.IMAGE,
+        width: 70,
+    },
+    {
+        align: 'start',
+        autoSize: false,
+        isEnabled: true,
+        label: i18n.t('table.config.label.title'),
+        pinned: null,
+        value: TableColumn.TITLE,
+        width: 300,
+    },
+    {
+        align: 'start',
+        autoSize: false,
+        isEnabled: true,
+        label: i18n.t('form.createRadioStation.input.homepageUrl'),
+        pinned: null,
+        value: TableColumn.HOMEPAGE_URL,
+        width: 300,
+    },
+    {
+        align: 'start',
+        autoSize: false,
+        isEnabled: false,
+        label: i18n.t('form.createRadioStation.input.streamUrl'),
+        pinned: null,
+        value: TableColumn.STREAM_URL,
+        width: 300,
+    },
+    {
+        align: 'center',
+        autoSize: false,
+        isEnabled: false,
+        label: i18n.t('table.config.label.actions'),
+        pinned: null,
+        value: TableColumn.ACTIONS,
+        width: 60,
+    },
+];
+
 export const GENRE_TABLE_COLUMNS: DefaultTableColumn[] = [
     {
         align: 'center',

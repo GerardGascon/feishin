@@ -1,7 +1,11 @@
 import { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { RADIO_TABLE_COLUMNS } from '/@/renderer/components/item-list/item-table-list/default-columns';
 import { openCreateRadioStationModal } from '/@/renderer/features/radio/components/create-radio-station-form';
+import { ListConfigMenu } from '/@/renderer/features/shared/components/list-config-menu';
+import { ListDisplayTypeToggleButton } from '/@/renderer/features/shared/components/list-display-type-toggle-button';
+import { ListRefreshButton } from '/@/renderer/features/shared/components/list-refresh-button';
 import { ListSortByDropdown } from '/@/renderer/features/shared/components/list-sort-by-dropdown';
 import { ListSortOrderToggleButton } from '/@/renderer/features/shared/components/list-sort-order-toggle-button';
 import { useCurrentServer, usePermissions } from '/@/renderer/store';
@@ -34,14 +38,20 @@ export const RadioListHeaderFilters = () => {
                     defaultSortOrder={SortOrder.ASC}
                     listKey={ItemListKey.RADIO}
                 />
+                <ListRefreshButton listKey={ItemListKey.RADIO} />
             </Group>
-            {permissions.radio.create && (
-                <Group gap="sm" wrap="nowrap">
+            <Group gap="sm" wrap="nowrap">
+                {permissions.radio.create && (
                     <Button onClick={handleCreateRadioStationModal} variant="subtle">
                         {t('action.createRadioStation')}
                     </Button>
-                </Group>
-            )}
+                )}
+                <ListDisplayTypeToggleButton listKey={ItemListKey.RADIO} />
+                <ListConfigMenu
+                    listKey={ItemListKey.RADIO}
+                    tableColumnsData={RADIO_TABLE_COLUMNS}
+                />
+            </Group>
         </Flex>
     );
 };

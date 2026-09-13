@@ -14,6 +14,7 @@ import type {
     LyricsQuery,
     PlaylistDetailQuery,
     PlaylistListQuery,
+    RadioListQuery,
     RandomSongListQuery,
     SearchQuery,
     SimilarSongsQuery,
@@ -344,7 +345,31 @@ export const queryKeys: Record<
         },
     },
     radio: {
-        list: (serverId: string) => [serverId, 'radio', 'list'] as const,
+        count: (serverId: string, query?: RadioListQuery) => {
+            const { filter, pagination } = splitPaginatedQuery(query);
+
+            if (query && pagination) {
+                return [serverId, 'radio', 'count', filter, pagination] as const;
+            }
+
+            if (query) {
+                return [serverId, 'radio', 'count', filter] as const;
+            }
+
+            return [serverId, 'radio', 'count'] as const;
+        },
+        list: (serverId: string, query?: RadioListQuery) => {
+            const { filter, pagination } = splitPaginatedQuery(query);
+            if (query && pagination) {
+                return [serverId, 'radio', 'list', filter, pagination] as const;
+            }
+
+            if (query) {
+                return [serverId, 'radio', 'list', filter] as const;
+            }
+
+            return [serverId, 'radio', 'list'] as const;
+        },
         root: (serverId: string) => [serverId, 'radio'] as const,
     },
     roles: {

@@ -1300,6 +1300,9 @@ export const columnLabelMap: Record<TableColumn, ReactNode | string> = {
     [TableColumn.GENRE_BADGE]: i18n.t('table.column.genre', {
         postProcess: 'upperCase',
     }) as string,
+    [TableColumn.HOMEPAGE_URL]: i18n.t('form.createRadioStation.input.homepageUrl', {
+        postProcess: 'upperCase',
+    }) as string,
     [TableColumn.ID]: 'ID',
     [TableColumn.IMAGE]: '',
     [TableColumn.LAST_PLAYED]: i18n.t('table.column.lastPlayed', {
@@ -1333,6 +1336,9 @@ export const columnLabelMap: Record<TableColumn, ReactNode | string> = {
     [TableColumn.SIZE]: i18n.t('table.column.size', { postProcess: 'upperCase' }) as string,
     [TableColumn.SKIP]: '',
     [TableColumn.SONG_COUNT]: i18n.t('table.column.songCount', {
+        postProcess: 'upperCase',
+    }) as string,
+    [TableColumn.STREAM_URL]: i18n.t('form.createRadioStation.input.streamUrl', {
         postProcess: 'upperCase',
     }) as string,
     [TableColumn.TITLE]: i18n.t('table.column.title', { postProcess: 'upperCase' }) as string,

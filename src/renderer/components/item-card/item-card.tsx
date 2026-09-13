@@ -40,6 +40,7 @@ import {
     AlbumArtist,
     Artist,
     Genre,
+    InternetRadioStation,
     LibraryItem,
     Playlist,
     Song,
@@ -50,7 +51,7 @@ import { stringToColor } from '/@/shared/utils/string-to-color';
 export type DataRow = {
     align?: 'center' | 'end' | 'start';
     format: (
-        data: Album | AlbumArtist | Artist | Genre | Playlist | Song,
+        data: Album | AlbumArtist | Artist | Genre | InternetRadioStation | Playlist | Song,
     ) => null | ReactNode | string;
     id: string;
     isMuted?: boolean;
@@ -58,7 +59,7 @@ export type DataRow = {
 
 export interface ItemCardProps {
     controls?: ItemControls;
-    data: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined;
+    data: Album | AlbumArtist | Artist | Genre | InternetRadioStation | Playlist | Song | undefined;
     enableDrag?: boolean;
     enableExpansion?: boolean;
     enableMultiSelect?: boolean;
@@ -1386,6 +1387,32 @@ export const getDataRows = (type?: 'compact' | 'default' | 'poster'): DataRow[] 
             },
             id: 'userFavorite',
         },
+        {
+            format: (data) => {
+                if ('homepageUrl' in data && data.homepageUrl) {
+                    return (
+                        <Link rel='noopener noreferrer' target='_blank' to={data.homepageUrl}>
+                            {data.homepageUrl}
+                        </Link>
+                    );
+                }
+                return '';
+            },
+            id: 'homepageUrl',
+        },
+        {
+            format: (data) => {
+                if ('streamUrl' in data && data.streamUrl) {
+                    return (
+                        <Link rel='noopener noreferrer' target='_blank' to={data.streamUrl}>
+                            {data.streamUrl}
+                        </Link>
+                    );
+                }
+                return '';
+            },
+            id: 'streamUrl',
+        },
     ];
 };
 
@@ -1393,7 +1420,9 @@ export const getDataRowsCount = () => {
     return getDataRows().length;
 };
 
-const getImageUrl = (data: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined) => {
+const getImageUrl = (
+    data: Album | AlbumArtist | Artist | Genre | InternetRadioStation | Playlist | Song | undefined,
+) => {
     if (data && 'imageUrl' in data) {
         return data.imageUrl || undefined;
     }
@@ -1417,7 +1446,7 @@ const GenreImagePlaceholder = ({ className, name }: { className?: string; name: 
 };
 
 const getItemNavigationPath = (
-    data: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined,
+    data: Album | AlbumArtist | Artist | Genre | InternetRadioStation | Playlist | Song | undefined,
     itemType: LibraryItem,
 ): null | string => {
     if (!data || !('id' in data) || !data.id) {
@@ -1436,7 +1465,15 @@ const ItemCardRow = memo(
         row,
         type,
     }: {
-        data: Album | AlbumArtist | Artist | Genre | Playlist | Song | undefined;
+        data:
+            | Album
+            | AlbumArtist
+            | Artist
+            | Genre
+            | InternetRadioStation
+            | Playlist
+            | Song
+            | undefined;
         index: number;
         row: DataRow;
         type?: 'compact' | 'default' | 'poster';

@@ -612,16 +612,39 @@ export const controller = {
             ) || null
         );
     },
-    getInternetRadioStations(args) {
+    getInternetRadioStationList(args) {
         const server = getServerById(args.apiClientProps.serverId);
 
         if (!server) {
-            throw new Error(`${i18n.t('error.apiRouteError')}: getInternetRadioStations`);
+            throw new Error(`${i18n.t('error.apiRouteError')}: getInternetRadioStationsList`);
         }
+
         return apiController(
-            'getInternetRadioStations',
+            'getInternetRadioStationList',
             server.type,
-        )?.(addContext({ ...args, apiClientProps: { ...args.apiClientProps, server } }));
+        )?.(
+            addContext({
+                ...args,
+                apiClientProps: { ...args.apiClientProps, server },
+            }),
+        );
+    },
+    getInternetRadioStationListCount(args) {
+        const server = getServerById(args.apiClientProps.serverId);
+
+        if (!server) {
+            throw new Error(`${i18n.t('error.apiRouteError')}: getInternetRadioStationListCount`);
+        }
+
+        return apiController(
+            'getInternetRadioStationListCount',
+            server.type,
+        )?.(
+            addContext({
+                ...args,
+                apiClientProps: { ...args.apiClientProps, server },
+            }),
+        );
     },
     getLyrics(args) {
         const server = getServerById(args.apiClientProps.serverId);

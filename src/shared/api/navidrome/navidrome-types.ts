@@ -866,6 +866,7 @@ const updateInternetRadioStation = radioStation;
 
 const radioListParameters = optionalPaginationParameters.extend({
     _sort: z.nativeEnum(NDRadioListSort).optional(),
+    q: z.string().optional(),
 });
 
 export const ndType = {

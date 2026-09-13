@@ -11,6 +11,7 @@ import { GenreContextMenu } from '/@/renderer/features/context-menu/menus/genre-
 import { PlaylistContextMenu } from '/@/renderer/features/context-menu/menus/playlist-context-menu';
 import { PlaylistSongContextMenu } from '/@/renderer/features/context-menu/menus/playlist-song-context-menu';
 import { QueueContextMenu } from '/@/renderer/features/context-menu/menus/queue-context-menu';
+import { InternetRadioStationContextMenu } from '/@/renderer/features/context-menu/menus/radio-context-menu';
 import { SongContextMenu } from '/@/renderer/features/context-menu/menus/song-context-menu';
 import { ContextMenu } from '/@/shared/components/context-menu/context-menu';
 import {
@@ -19,6 +20,7 @@ import {
     Artist,
     Folder,
     Genre,
+    InternetRadioStation,
     LibraryItem,
     Playlist,
     QueueSong,
@@ -86,6 +88,9 @@ export const ContextMenuController = createCallable<ContextMenuControllerProps, 
                 {cmd.type === LibraryItem.ARTIST && <ArtistContextMenu {...cmd} />}
                 {cmd.type === LibraryItem.FOLDER && <FolderContextMenu {...cmd} />}
                 {cmd.type === LibraryItem.GENRE && <GenreContextMenu {...cmd} />}
+                {cmd.type === LibraryItem.RADIO_STATION && (
+                    <InternetRadioStationContextMenu {...cmd} />
+                )}
                 {cmd.type === LibraryItem.PLAYLIST && <PlaylistContextMenu {...cmd} />}
                 {cmd.type === LibraryItem.PLAYLIST_SONG && <PlaylistSongContextMenu {...cmd} />}
                 {cmd.type === LibraryItem.SONG && <SongContextMenu {...cmd} />}
@@ -100,6 +105,7 @@ export type ContextMenuCommand =
     | ArtistContextMenuProps
     | FolderContextMenuProps
     | GenreContextMenuProps
+    | InternetRadioStationContextMenuProps
     | PlaylistContextMenuProps
     | PlaylistSongContextMenuProps
     | QueueSongContextMenuProps
@@ -128,6 +134,11 @@ type FolderContextMenuProps = {
 type GenreContextMenuProps = {
     items: Genre[];
     type: LibraryItem.GENRE;
+};
+
+type InternetRadioStationContextMenuProps = {
+    items: InternetRadioStation[];
+    type: LibraryItem.RADIO_STATION;
 };
 
 type PlaylistContextMenuProps = {

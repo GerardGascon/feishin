@@ -150,6 +150,18 @@ const UpdatePlaylistContextModal = (props: any) => (
     </Suspense>
 );
 
+const LazyUpdateRadioContextModal = lazy(() =>
+    import('/@/renderer/features/radio/components/update-radio-form').then((module) => ({
+        default: module.UpdateRadioContextModal,
+    })),
+);
+
+const UpdateRadioContextModal = (props: any) => (
+    <Suspense fallback={<Spinner container />}>
+        <LazyUpdateRadioContextModal {...props} />
+    </Suspense>
+);
+
 const LazyShareItemContextModal = lazy(() =>
     import('/@/renderer/features/sharing/components/share-item-context-modal').then((module) => ({
         default: module.ShareItemContextModal,
@@ -214,6 +226,7 @@ const appRouterModals = {
     shareItem: ShareItemContextModal,
     shuffleAll: ShuffleAllContextModal,
     updatePlaylist: UpdatePlaylistContextModal,
+    updateRadio: UpdateRadioContextModal,
     visualizerSettings: VisualizerSettingsContextModal,
 };
 

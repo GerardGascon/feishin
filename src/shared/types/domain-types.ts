@@ -29,6 +29,7 @@ export enum LibraryItem {
     PLAYLIST = 'playlist',
     PLAYLIST_SONG = 'playlistSong',
     QUEUE_SONG = 'queueSong',
+    RADIO = 'radio',
     RADIO_STATION = 'radioStation',
     SONG = 'song',
 }
@@ -44,7 +45,14 @@ export enum SortOrder {
     DESC = 'DESC',
 }
 
-export type AnyLibraryItem = Album | AlbumArtist | Artist | Playlist | QueueSong | Song;
+export type AnyLibraryItem =
+    | Album
+    | AlbumArtist
+    | Artist
+    | InternetRadioStation
+    | Playlist
+    | QueueSong
+    | Song;
 
 export type AnyLibraryItems =
     | Album[]
@@ -1077,11 +1085,10 @@ export type FavoriteQuery = {
 // Favorite
 export type FavoriteResponse = null | undefined;
 
-export type GetInternetRadioStationsArgs = BaseEndpointArgs;
-
-export type GetInternetRadioStationsResponse = InternetRadioStation[];
-
 export type InternetRadioStation = {
+    _itemType: LibraryItem.RADIO_STATION;
+    _serverId: string;
+    _serverType: ServerType;
     homepageUrl: null | string;
     id: string;
     imageId?: null | string;
@@ -1091,6 +1098,14 @@ export type InternetRadioStation = {
     thumbHash?: null | string;
     uploadedImage?: null | string;
 };
+
+export type InternetRadioStationListArgs = BaseEndpointArgs & { query: RadioListQuery };
+
+export type InternetRadioStationListCountArgs = BaseEndpointArgs & {
+    query: ListCountQuery<RadioListQuery>;
+};
+
+export type InternetRadioStationListResponse = BasePaginatedResponse<InternetRadioStation[]>;
 
 export type PlaylistListArgs = BaseEndpointArgs & { query: PlaylistListQuery };
 
@@ -1113,6 +1128,13 @@ export type PlaylistRules = Record<string, any> & {
     refreshDelay?: string;
     sort?: string;
 };
+
+export interface RadioListQuery extends BaseQuery<RadioListSort> {
+    _custom?: Record<string, any>;
+    limit?: number;
+    searchTerm?: string;
+    startIndex: number;
+}
 
 export type RatingQuery = {
     id: string[];
@@ -1621,9 +1643,10 @@ export type ControllerEndpoint = {
     getGenreList: (args: GenreListArgs) => Promise<GenreListResponse>;
     getImageRequest: (args: ImageArgs) => ImageRequest | null;
     getImageUrl: (args: ImageArgs) => null | string;
-    getInternetRadioStations: (
-        args: GetInternetRadioStationsArgs,
-    ) => Promise<GetInternetRadioStationsResponse>;
+    getInternetRadioStationList: (
+        args: InternetRadioStationListArgs,
+    ) => Promise<InternetRadioStationListResponse>;
+    getInternetRadioStationListCount: (args: InternetRadioStationListCountArgs) => Promise<number>;
     getLyrics?: (args: LyricsArgs) => Promise<LyricsResponse>;
     getMusicFolderList: (args: MusicFolderListArgs) => Promise<MusicFolderListResponse>;
     getPlaylistDetail: (args: PlaylistDetailArgs) => Promise<PlaylistDetailResponse>;
@@ -1774,9 +1797,12 @@ export type InternalControllerEndpoint = {
     getGenreList: (args: ReplaceApiClientProps<GenreListArgs>) => Promise<GenreListResponse>;
     getImageRequest: (args: ReplaceApiClientProps<ImageArgs>) => ImageRequest | null;
     getImageUrl: (args: ReplaceApiClientProps<ImageArgs>) => null | string;
-    getInternetRadioStations: (
-        args: ReplaceApiClientProps<GetInternetRadioStationsArgs>,
-    ) => Promise<GetInternetRadioStationsResponse>;
+    getInternetRadioStationList: (
+        args: ReplaceApiClientProps<InternetRadioStationListArgs>,
+    ) => Promise<InternetRadioStationListResponse>;
+    getInternetRadioStationListCount: (
+        args: ReplaceApiClientProps<InternetRadioStationListCountArgs>,
+    ) => Promise<number>;
     getLyrics?: (args: ReplaceApiClientProps<LyricsArgs>) => Promise<LyricsResponse>;
     getMusicFolderList: (
         args: ReplaceApiClientProps<MusicFolderListArgs>,

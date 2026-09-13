@@ -28,6 +28,7 @@ import {
     AnyLibraryItem,
     Artist,
     ExplicitStatus,
+    InternetRadioStation,
     LibraryItem,
     Playlist,
     RelatedArtist,
@@ -35,8 +36,8 @@ import {
 } from '/@/shared/types/domain-types';
 
 export type ItemDetailsModalProps = {
-    item?: Album | AlbumArtist | Artist | Playlist | Song;
-    items?: (Album | AlbumArtist | Artist | Playlist | Song)[];
+    item?: Album | AlbumArtist | Artist | InternetRadioStation | Playlist | Song;
+    items?: (Album | AlbumArtist | Artist | InternetRadioStation | Playlist | Song)[];
 };
 
 type ItemDetailRow<T> = {
@@ -271,6 +272,35 @@ const PlaylistPropertyMapping: ItemDetailRow<Playlist>[] = [
     { key: 'id', label: 'filter.id' },
 ];
 
+const RadioPropertyMapping: ItemDetailRow<InternetRadioStation>[] = [
+    { key: 'name', label: 'common.title' },
+    {
+        key: 'homepageUrl',
+        label: 'common.description',
+        render: (radio) =>
+            radio.homepageUrl ? (
+                <Link rel="noopener noreferrer" target="_blank" to={radio.homepageUrl}>
+                    {radio.homepageUrl}
+                </Link>
+            ) : (
+                BoolField(false)
+            ),
+    },
+    {
+        key: 'streamUrl',
+        label: 'common.description',
+        render: (radio) =>
+            radio.streamUrl ? (
+                <Link rel="noopener noreferrer" target="_blank" to={radio.streamUrl}>
+                    {radio.homepageUrl}
+                </Link>
+            ) : (
+                BoolField(false)
+            ),
+    },
+    { key: 'id', label: 'filter.id' },
+];
+
 const SongPropertyMapping: ItemDetailRow<Song>[] = [
     { key: 'name', label: 'common.title' },
     { key: 'path', label: 'common.path', render: SongPath },
@@ -470,6 +500,9 @@ export const ItemDetailsModal = ({ item, items }: ItemDetailsModalProps) => {
             break;
         case LibraryItem.PLAYLIST:
             body = PlaylistPropertyMapping.map((rule) => handleRow(t, selectedItem, rule));
+            break;
+        case LibraryItem.RADIO_STATION:
+            body = RadioPropertyMapping.map((rule) => handleRow(t, selectedItem, rule));
             break;
         case LibraryItem.SONG:
             body = SongPropertyMapping.map((rule) => handleRow(t, selectedItem, rule));

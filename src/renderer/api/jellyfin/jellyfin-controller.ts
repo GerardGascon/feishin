@@ -27,6 +27,7 @@ import {
     LibraryItem,
     Played,
     playlistListSortMap,
+    RadioListSort,
     ReplaceApiClientProps,
     ServerType,
     Song,
@@ -241,6 +242,39 @@ const JF_FIELDS = {
     SONG: ['Genres', 'DateCreated', 'MediaSources', 'ParentId', 'Tags', 'SortName', 'ProviderIds'],
 } as const;
 
+function sortAndPaginate<T>(
+    items: T[],
+    options: {
+        limit?: number;
+        sortBy?: any;
+        sortFn?: (items: T[], sortBy: any, sortOrder: SortOrder) => T[];
+        sortOrder?: SortOrder;
+        startIndex?: number;
+    },
+): {
+    items: T[];
+    startIndex: number;
+    totalRecordCount: number;
+} {
+    let sortedItems = items;
+
+    if (options.sortFn && options.sortBy) {
+        const sortOrder = options.sortOrder || SortOrder.ASC;
+        sortedItems = options.sortFn(items, options.sortBy, sortOrder);
+    }
+
+    const totalCount = sortedItems.length;
+    const startIndex = options.startIndex || 0;
+    const limit = options.limit || totalCount;
+    const paginatedItems = sortedItems.slice(startIndex, startIndex + limit);
+
+    return {
+        items: paginatedItems,
+        startIndex: startIndex,
+        totalRecordCount: totalCount,
+    };
+}
+
 export const JellyfinController: InternalControllerEndpoint = {
     addToPlaylist: async (args) => {
         const { apiClientProps, body, query } = args;
@@ -402,9 +436,16 @@ export const JellyfinController: InternalControllerEndpoint = {
         }
 
         state.actions.createStation(apiClientProps.serverId, {
+            _itemType: LibraryItem.RADIO_STATION,
+            _serverId: apiClientProps.serverId,
+            _serverType: ServerType.JELLYFIN,
             homepageUrl: body.homepageUrl || null,
+            imageId: undefined,
+            imageUrl: undefined,
             name: body.name,
             streamUrl: body.streamUrl,
+            thumbHash: undefined,
+            uploadedImage: undefined,
         });
 
         return null;
@@ -1065,8 +1106,9 @@ export const JellyfinController: InternalControllerEndpoint = {
     },
     getImageRequest: getJellyfinImageRequest,
     getImageUrl: (args) => getJellyfinImageRequest(args)?.url || null,
-    getInternetRadioStations: async (args) => {
-        const { apiClientProps } = args;
+    getInternetRadioStationList: async (args) => {
+        const { apiClientProps, query } = args;
+        const sortOrder = (query.sortOrder || SortOrder.ASC).toLowerCase() as 'asc' | 'desc';
 
         if (!apiClientProps.serverId) {
             throw new Error('No serverId found');
@@ -1077,8 +1119,37 @@ export const JellyfinController: InternalControllerEndpoint = {
             throw new Error('Radio store not initialized');
         }
 
-        return state.actions.getStations(apiClientProps.serverId);
+        let results = state.actions.getStations(apiClientProps.serverId);
+
+        if (query.searchTerm) {
+            const searchResults = filter(results, (radio) => {
+                return radio.name.toLowerCase().includes(query.searchTerm!.toLowerCase());
+            });
+
+            results = searchResults;
+        }
+
+        switch (query.sortBy) {
+            case RadioListSort.ID:
+                results = orderBy(results, [(v) => v.id], [sortOrder]);
+                break;
+            case RadioListSort.NAME:
+                results = orderBy(results, [(v) => v.name?.toLowerCase()], [sortOrder]);
+                break;
+            default:
+                break;
+        }
+
+        return sortAndPaginate(results, {
+            limit: query.limit,
+            startIndex: query.startIndex,
+        });
     },
+    getInternetRadioStationListCount: async ({ apiClientProps, query }) =>
+        JellyfinController.getInternetRadioStationList({
+            apiClientProps,
+            query: { ...query, limit: 1, startIndex: 0 },
+        }).then((result) => result!.totalRecordCount!),
     getLyrics: async (args) => {
         const { apiClientProps, query } = args;
 

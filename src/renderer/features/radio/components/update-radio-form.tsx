@@ -1,5 +1,5 @@
-import { t } from 'i18next';
-import { MouseEvent, type ReactNode, useEffect, useState } from 'react';
+import { closeModal, ContextModalProps } from '@mantine/modals';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ItemImage } from '/@/renderer/components/item-image/item-image';
@@ -7,7 +7,6 @@ import { useDeleteInternetRadioStationImage } from '/@/renderer/features/radio/m
 import { useUpdateRadioStation } from '/@/renderer/features/radio/mutations/update-radio-station-mutation';
 import { useUploadInternetRadioStationImage } from '/@/renderer/features/radio/mutations/upload-internet-radio-station-image-mutation';
 import { useCurrentServer } from '/@/renderer/store';
-import { logger } from '/@/renderer/utils/logger';
 import { hasFeature } from '/@/shared/api/utils';
 import { ActionIcon } from '/@/shared/components/action-icon/action-icon';
 import { Box } from '/@/shared/components/box/box';
@@ -15,24 +14,17 @@ import { DragDropZone } from '/@/shared/components/drag-drop-zone/drag-drop-zone
 import { FileButton } from '/@/shared/components/file-button/file-button';
 import { Flex } from '/@/shared/components/flex/flex';
 import { Group } from '/@/shared/components/group/group';
-import { closeAllModals, openModal } from '/@/shared/components/modal/modal';
 import { ModalButton } from '/@/shared/components/modal/model-shared';
 import { Stack } from '/@/shared/components/stack/stack';
 import { TextInput } from '/@/shared/components/text-input/text-input';
 import { toast } from '/@/shared/components/toast/toast';
 import { useForm } from '/@/shared/hooks/use-form';
 import {
-    InternetRadioStation,
     LibraryItem,
-    ServerListItem,
     UpdateInternetRadioStationBody,
+    UpdateInternetRadioStationQuery,
 } from '/@/shared/types/domain-types';
 import { ServerFeature } from '/@/shared/types/features-types';
-
-interface EditRadioStationFormProps {
-    onCancel: () => void;
-    station: InternetRadioStation;
-}
 
 type RadioStationImageProps = {
     imageId: null | string;
@@ -40,19 +32,21 @@ type RadioStationImageProps = {
     uploadedImage?: string;
 };
 
-export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationFormProps) => {
+export const UpdateRadioContextModal = ({
+    id,
+    innerProps,
+}: ContextModalProps<{
+    body: Partial<UpdateInternetRadioStationBody>;
+    query: UpdateInternetRadioStationQuery;
+    stationImage?: RadioStationImageProps;
+}>) => {
     const { t } = useTranslation();
     const updateMutation = useUpdateRadioStation({});
     const uploadImageMutation = useUploadInternetRadioStationImage({});
     const deleteImageMutation = useDeleteInternetRadioStationImage({});
     const server = useCurrentServer();
     const isCoverImageDisplayed = hasFeature(server, ServerFeature.INTERNET_RADIO_IMAGE_UPLOAD);
-
-    const stationImage: RadioStationImageProps = {
-        imageId: station.imageId ?? null,
-        imageUrl: station.imageUrl ?? null,
-        uploadedImage: station.uploadedImage ?? undefined,
-    };
+    const { body, query, stationImage } = innerProps;
 
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [pendingPreviewUrl, setPendingPreviewUrl] = useState<null | string>(null);
@@ -71,9 +65,9 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
 
     const form = useForm<UpdateInternetRadioStationBody>({
         initialValues: {
-            homepageUrl: station.homepageUrl || '',
-            name: station.name,
-            streamUrl: station.streamUrl,
+            homepageUrl: body?.homepageUrl || '',
+            name: body?.name || '',
+            streamUrl: body?.streamUrl || '',
         },
     });
 
@@ -85,7 +79,7 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
             await updateMutation.mutateAsync({
                 apiClientProps: { serverId: server.id },
                 body: values,
-                query: { id: station.id },
+                query: { id: query.id },
             });
 
             if (pendingFile) {
@@ -93,25 +87,23 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
                 await uploadImageMutation.mutateAsync({
                     apiClientProps: { serverId: server.id },
                     body: { image: new Uint8Array(buffer) },
-                    query: { id: station.id },
+                    query: { id: query.id },
                 });
-            } else if (removeCustomCover && stationImage.uploadedImage) {
+            } else if (removeCustomCover && stationImage?.uploadedImage) {
                 await deleteImageMutation.mutateAsync({
                     apiClientProps: { serverId: server.id },
-                    query: { id: station.id },
+                    query: { id: query.id },
                 });
             }
 
             toast.success({
                 message: t('form.editRadioStation.success') as string,
             });
-            closeAllModals();
-        } catch (err: unknown) {
-            logger.error('An error occurred', { error: err as Error });
-
+            closeModal(id);
+        } catch (err: any) {
             toast.error({
-                message: (err as Error)?.message,
-                title: t('error.genericError') as string,
+                message: err?.message,
+                title: t('error.genericError'),
             });
         } finally {
             setIsSaving(false);
@@ -119,7 +111,7 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
     });
 
     const isSubmitDisabled = !form.values.name || !form.values.streamUrl || isSaving;
-    const hadUploadedCover = !!stationImage.uploadedImage;
+    const hadUploadedCover = !!stationImage?.uploadedImage;
 
     const fieldNodes: ReactNode[] = [
         <TextInput
@@ -147,7 +139,7 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
             {...form.getInputProps('homepageUrl')}
         />,
         <Group justify="flex-end" key="actions">
-            <ModalButton disabled={isSaving} onClick={onCancel}>
+            <ModalButton disabled={isSaving} onClick={() => closeModal(id)}>
                 {t('common.cancel')}
             </ModalButton>
             <ModalButton
@@ -163,7 +155,7 @@ export const EditRadioStationForm = ({ onCancel, station }: EditRadioStationForm
 
     return (
         <form onSubmit={handleSubmit}>
-            {isCoverImageDisplayed && server?.id ? (
+            {isCoverImageDisplayed ? (
                 <Flex align="flex-start" gap="lg" wrap="wrap">
                     <RadioStationCoverField
                         hadUploadedCover={hadUploadedCover}
@@ -209,13 +201,13 @@ function RadioStationCoverField({
     pendingFile: File | null;
     pendingPreviewUrl: null | string;
     removeCustomCover: boolean;
-    stationImage: RadioStationImageProps;
+    stationImage?: RadioStationImageProps;
 }) {
     const server = useCurrentServer();
 
     const showServerCover = !pendingPreviewUrl && !removeCustomCover;
-    const previewId = showServerCover ? stationImage.imageId || undefined : undefined;
-    const previewSrc = pendingPreviewUrl || (showServerCover ? stationImage.imageUrl || '' : '');
+    const previewId = showServerCover ? stationImage?.imageId || undefined : undefined;
+    const previewSrc = pendingPreviewUrl || (showServerCover ? stationImage?.imageUrl || '' : '');
 
     const secondaryAction = () => {
         if (pendingFile) {
@@ -311,26 +303,3 @@ function RadioStationCoverField({
         </Box>
     );
 }
-
-export const openEditRadioStationModal = (
-    station: InternetRadioStation,
-    server: null | ServerListItem,
-    e?: MouseEvent<HTMLButtonElement>,
-) => {
-    e?.stopPropagation();
-
-    if (!server) {
-        toast.error({
-            message: t('common.error.noServer') as string,
-        });
-        return;
-    }
-
-    const hasImageUpload = hasFeature(server, ServerFeature.INTERNET_RADIO_IMAGE_UPLOAD);
-
-    openModal({
-        children: <EditRadioStationForm onCancel={closeAllModals} station={station} />,
-        size: hasImageUpload ? 'lg' : 'md',
-        title: t('common.edit') as string,
-    });
-};
