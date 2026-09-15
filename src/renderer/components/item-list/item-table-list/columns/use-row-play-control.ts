@@ -13,11 +13,13 @@ import {
     Album,
     AlbumArtist,
     Artist,
+    InternetRadioStation,
     LibraryItem,
     QueueSong,
     Song,
 } from '/@/shared/types/domain-types';
 import { Play, PlayerStatus } from '/@/shared/types/types';
+import { useRadioPlayer } from '/@/renderer/features/radio/hooks/use-radio-player';
 
 export const supportsRowPlayControls = (itemType: LibraryItem) =>
     itemType === LibraryItem.ALBUM ||
@@ -50,10 +52,12 @@ export const useRowPlayControl = (props: ItemTableListInnerColumn) => {
     const status = usePlayerStatus();
     const currentSong = usePlayerSong();
     const player = usePlayer();
+    const { currentStreamUrl } = useRadioPlayer();
     const rowItem = props.getRowItem?.(props.rowIndex) ?? props.data[props.rowIndex];
     const song = rowItem as QueueSong;
     const album = rowItem as Album;
     const artist = rowItem as AlbumArtist | Artist;
+    const radio = rowItem as InternetRadioStation;
 
     const isActiveFromRow = useIsActiveRow(song?.id, song?._uniqueId);
     const isActive = (() => {
@@ -72,6 +76,8 @@ export const useRowPlayControl = (props: ItemTableListInnerColumn) => {
                     !!artist?.id &&
                     !!currentSong?.artists?.some((relatedArtist) => relatedArtist.id === artist.id)
                 );
+            case LibraryItem.RADIO_STATION:
+                return !!radio?.streamUrl && currentStreamUrl === radio.streamUrl;
             default:
                 return isActiveFromRow;
         }

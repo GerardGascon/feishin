@@ -32,6 +32,7 @@ const RowIndexColumnBase = (props: ItemTableListInnerColumn) => {
         case LibraryItem.FOLDER:
         case LibraryItem.PLAYLIST_SONG:
         case LibraryItem.QUEUE_SONG:
+        case LibraryItem.RADIO_STATION:
         case LibraryItem.SONG:
             return <PlayableRowIndexColumn {...props} />;
         default:
